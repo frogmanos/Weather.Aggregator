@@ -1,3 +1,4 @@
+using System.Reflection;
 using Weather.Aggregator.Application;
 using Weather.Aggregator.Application.Logging;
 using Weather.Aggregator.Infrastructure.Http.Client;
@@ -19,7 +20,11 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+    {
+        var xml = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xml));
+    });
 
 builder.Host.AddLogging();
 

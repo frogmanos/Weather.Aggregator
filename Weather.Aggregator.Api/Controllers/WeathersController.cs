@@ -15,6 +15,16 @@ public class WeathersController(
     : BaseController<WeathersController>(logging, correlationIdContext)
 {
 
+    /// <summary>
+    /// Gets weather information for a city.
+    /// </summary>
+    /// <param name="city">The name of the city.</param>
+    /// <param name="sortBy">
+    /// Sorting option. Possible values:
+    /// <br/>temp, sort by temperature Ascending
+    /// <br/>source, sort by Source Api
+    /// <br/>temp_desc, sort by temperature Descending
+    /// </param>
     [HttpGet("{city}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(ApiResponse<FetchWeatherResponse>), 200)]
