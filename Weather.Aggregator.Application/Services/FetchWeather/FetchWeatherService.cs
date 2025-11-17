@@ -45,8 +45,7 @@ public sealed class FetchWeatherService(
             .ToList();
 
         var failedWeatherResults = weatherDataResults
-            .Where(result => !result.IsSuccess)
-            .Select(result => result.Value)
+            .Where(result => !result.IsSuccess)            
             .ToList();
 
         if (failedWeatherResults.Count > 0)
@@ -54,7 +53,7 @@ public sealed class FetchWeatherService(
             logging.Warn("Failed to fetch weather data from all of the sources",                 
                 new Dictionary<string, object>
                 {
-                    { "FailedSources", string.Join(", ", failedWeatherResults.Select(r => r.SourceName)) },
+                    { "FailedErrors", failedWeatherResults.Select(f => f.Errors).ToList() },
                     { "City", request.City },
                     { "Latitude", coordinates.Latitude },
                     { "Longitude", coordinates.Longitude }

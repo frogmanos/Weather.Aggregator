@@ -67,6 +67,37 @@ namespace Weather.Aggregator.Tests.Application.Services
             Assert.Equal(result.Errors.First(), ApplicationErrors.InvalidLocationInput);            
         }
 
+        [Fact]
+        public async Task ExecuteAsync_ShouldReturnClientsData_WhenSomeClientFailed()
+        {
+            // Arrange
+
+            var testProvider = TestProvider
+                .Initialize()
+                .MockCoordinatorProvider(32.1234, 23.4321)
+                .MockOpenWeatherClient(true)
+                .MockWeatherApiClient()
+                .MockWeatherBitClient();
+
+            var fetchWeatherService = testProvider.CreateService();
+
+            // Act
+
+            var result = await fetchWeatherService.ExecuteAsync(TestProvider.GetFetchWeatherQuery(), CancellationToken.None);
+
+            // Assert
+
+            Assert.NotNull(result);
+            Assert.True(result.IsSuccess);
+            Assert.Equal("Athens", result.Value.City);
+            Assert.Equal(2, result.Value.WeatherSources.Count);
+
+            testProvider
+                .AssertOpenWeatherCalledOnce()
+                .AssertWeatherApiCalledOnce()
+                .AssertWeatherBitCalledOnce();
+        }
+
         private class TestProvider
         {
             private IFetchWeatherService _fetchWeatherService;
@@ -132,17 +163,10 @@ namespace Weather.Aggregator.Tests.Application.Services
                 return this;
             }
 
-            public TestProvider MockOpenWeatherClient()
+            public TestProvider MockOpenWeatherClient(bool shouldFailed = false)
             {
                 _openWeatherClientMock.GetWeatherDataAsync(Arg.Any<double>(), Arg.Any<double>(), Arg.Any<CancellationToken>())
-                    .Returns(Result.Success(new CurrentWeather
-                    {
-                        SourceName = "OpenWeatherClient",
-                        TemperatureC = 28.5,
-                        Condition = "Sunny",
-                        FeelsLikeC = 29.4,
-                        TimestampUtc = DateTime.UtcNow
-                    }));
+                    .Returns(shouldFailed ? GetFailedWeatherData() : GetSucceedWeatherData("OpenWeatherClient", 26.7));
 
                 return this;
             }
@@ -150,14 +174,7 @@ namespace Weather.Aggregator.Tests.Application.Services
             public TestProvider MockWeatherApiClient()
             {
                 _weatherApiClientMock.GetWeatherDataAsync(Arg.Any<double>(), Arg.Any<double>(), Arg.Any<CancellationToken>())
-                    .Returns(Result.Success(new CurrentWeather
-                    {
-                        SourceName = "WeatherApiClient",
-                        TemperatureC = 29.5,
-                        Condition = "Dry",
-                        FeelsLikeC = 30.4,
-                        TimestampUtc = DateTime.UtcNow
-                    }));
+                    .Returns(GetSucceedWeatherData("WeatherApiClient", 29.3));
 
                 return this;
             }
@@ -165,14 +182,7 @@ namespace Weather.Aggregator.Tests.Application.Services
             public TestProvider MockWeatherBitClient()
             {
                 _weatherBitClientMock.GetWeatherDataAsync(Arg.Any<double>(), Arg.Any<double>(), Arg.Any<CancellationToken>())
-                    .Returns(Result.Success(new CurrentWeather
-                    {
-                        SourceName = "WeatherBitClient",
-                        TemperatureC = 27.8,
-                        Condition = "Sunny",
-                        FeelsLikeC = 39.2,
-                        TimestampUtc = DateTime.UtcNow
-                    }));
+                    .Returns(GetSucceedWeatherData("WeatherBitClient", 27.7));
 
                 return this;
             }
@@ -196,6 +206,21 @@ namespace Weather.Aggregator.Tests.Application.Services
             }
 
             public static FetchWeatherQuery GetFetchWeatherQuery(string? sortBy = null) => new("Athens", sortBy);
+
+            private static Result<CurrentWeather> GetFailedWeatherData()
+                => Result.Failure<CurrentWeather>(ApplicationErrors.WeatherDataFetchFailed);
+
+            private static Result<CurrentWeather> GetSucceedWeatherData(string source, double temperature)
+                => Result.Success(new CurrentWeather
+                {
+                    SourceName = source,
+                    TemperatureC = temperature,
+                    Condition = "Sunny",
+                    FeelsLikeC = temperature + 1.01,
+                    TimestampUtc = DateTime.UtcNow
+                });
+
+            
         }
     }
 }

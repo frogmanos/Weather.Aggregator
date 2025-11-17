@@ -10,8 +10,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        services.AddTransient<IFetchWeatherService, FetchWeatherService>();
-        services.AddTransient<IStatisticsService, StatisticsService>();
+        services.AddScoped<IFetchWeatherService, FetchWeatherService>();
+        services.AddSingleton<IStatisticsService, StatisticsService>();
         services.AddSingleton<IHelperService, HelperService>();
         services.AddMemoryCache();
         return services;
