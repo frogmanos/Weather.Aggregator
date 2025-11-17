@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Weather.Aggregator.Application.Interfaces\Weather.Aggregator.Application.Interfaces.csproj" />
+    <ProjectReference Include="..\Weather.Aggregator.Application.Logging\Weather.Aggregator.Application.Logging.csproj" />
+  </ItemGroup>
+
+</Project>

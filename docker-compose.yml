@@ -1,0 +1,23 @@
+name: weather-aggregator
+services:
+  weather.aggregator.api:
+    image: ${DOCKER_REGISTRY-}weatheraggregatorapi
+    container_name: weather-aggregator-api
+    build:
+      context: .
+      dockerfile: Weather.Aggregator.Api/Dockerfile
+    ports:
+      - 5000:8080
+      - 5001:8081
+    depends_on:
+      - seq
+
+  seq:
+    image: datalust/seq:latest
+    container_name: seq
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_ADMINPASSWORD=admin
+    ports:      
+      - "5341:80"
+   
