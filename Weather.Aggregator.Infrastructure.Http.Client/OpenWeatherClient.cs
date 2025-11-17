@@ -1,5 +1,4 @@
 ﻿using System.Net.Http.Json;
-using System.Net.Sockets;
 using Weather.Aggregator.Application.Common;
 using Weather.Aggregator.Application.DataTransferObjects.Common;
 using Weather.Aggregator.Application.DataTransferObjects.FetchWeather;
